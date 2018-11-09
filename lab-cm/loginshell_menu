@@ -1,0 +1,41 @@
+#!/bin/bash
+#
+# -- LOGIN SHELL MENU --
+#
+# DESCRIPTION:  A login shell for lab users to access racked devices
+# DATE:         Summer 2018
+# AUTHOR:       A HAL 9000 computer
+
+## SOURCES ########################################################################
+. /etc/config/customscripts/variables
+. /etc/config/customscripts/power_menu
+
+rackCheck               # Set CM IP addresses
+variablesSSH            # Get variables to check for SSH IP address
+traps                   # Get traps
+getPortNumbers          # Get pmshell commands for each port
+colours                 # Get colours
+
+## MAIN ###########################################################################
+clear
+
+D=0
+while [[ ${D} == 0 ]]; do
+        clear
+        graphics loginshell_menu
+        read -p "  > " opt
+
+        case $opt in
+                1) ${PORT1};;
+                2) ${PORT2};;
+                3) ${PORT3};;
+                4) ${PORT4};;
+                5) ${PORT5};;
+                6) ${PORT6};;
+                7) ${PORT7};;
+                8) ${PORT8};;
+                p|P) clear; powerQuery; powerMenu;;             ## POWERMENU
+                x|X) D=1; break;;
+                *) clear;;
+        esac
+done
