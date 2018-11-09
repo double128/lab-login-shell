@@ -25,7 +25,8 @@ if [[ $(netstat -natpe | grep sshd | awk '{if ($4 == "'${POD1IP}:22'") print $9}
         echo Non-keyboard interactive auth
         ip route add 172.16.0.251/32 via ${RACKIP} src ${POD1IP}
         exit 0
-elif [[ $(ps | grep ${PAM_USER} | grep pam | grep $PPID) ]]; then
+# THIS IS CURRENTLY CAUSING PROBLEMS :(
+elif [[ $(ps | grep ${PAM_USER} | grep pam | grep $PPID) ]]; then            
         # Keyboard interactive authentication, where PPID = sshd [pam]'s PID
         echo Keyboard interactive auth
         ip route add 172.16.0.251/32 via ${RACKIP} src ${POD1IP}
