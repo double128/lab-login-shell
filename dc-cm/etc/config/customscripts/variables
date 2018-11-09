@@ -1,0 +1,230 @@
+  #######################################################
+  #    Source file for variables needed by scripts      #
+  #######################################################
+
+## Welcome to my lovely variable definition script. You will need
+## To change the contents of this file depending on the rack CM that
+## this script is being run on.
+
+rackCheck() {
+        ifconf=$(ifconfig | grep eth0 -A1)
+        RACK1_IP="172.16.2.191"
+        RACK2_IP="172.16.2.192"
+        RACK3_IP="172.16.2.193"
+        RACK4_IP="172.16.2.194"
+        ## Lab CMs will require 8 definitions
+
+        # If the IP address of this device is equal to DC Rack 1 CM's IP
+        if [[ $(echo ${ifconf} | grep ${RACK1_IP}) ]]; then
+                ## POD VARIABLES ##########################
+                export POD1="1"
+                export POD1IP="172.16.2.1"
+                export POD2="2"
+                export POD2IP="172.16.2.2"
+                export POD3="3"
+                export POD3IP="172.16.2.3"
+                export POD4="4"
+                export POD4IP="172.16.2.4"
+
+                ## RACK VARIABLES #########################
+                export RACKIP="${RACK1_IP}"
+                export RACK="1"
+
+        elif [[ $(echo ${ifconf} | grep ${RACK2_IP}) ]]; then
+                ## POD VARIABLES ############################
+                POD1="5"
+                POD1IP="172.16.2.5"
+                POD2="6"
+                POD2IP="172.16.2.6"
+                POD3="7"
+                POD3IP="172.16.2.7"
+                POD4="8"
+                POD4IP="172.16.2.8"
+
+                ## RACK VARIABLES ###########################
+                RACKIP="${RACK2_IP}"
+                RACK="2"
+
+        elif [[ $(echo ${ifconf} | grep ${RACK3_IP}) ]]; then
+                ## POD VARIABLES ############################
+                POD1="9"
+                POD1IP="172.16.2.9"
+                POD2="10"
+                POD2IP="172.16.2.10"
+                POD3="11"
+                POD3IP="172.16.2.11"
+                POD4="12"
+                POD4IP="172.16.2.12"
+
+                ## RACK VARIABLES ###########################
+                RACKIP="${RACK3_IP}"
+                RACK="3"
+
+        elif [[ $(echo ${ifconf} | grep ${RACK4_IP}) ]]; then
+                ## POD VARIABLES ############################
+                POD1="13"
+                POD1IP="172.16.2.13"
+                POD2="14"
+                POD2IP="172.16.2.14"
+                POD3="15"
+                POD3IP="172.16.2.15"
+                POD4="16"
+                POD4IP="172.16.2.16"
+
+                ## RACK VARIABLES ###########################
+                RACKIP="${RACK4_IP}"
+                RACK="4"
+        fi
+}
+
+traps() {
+        trap "" SIGINT SIGQUIT SIGTSTP          # Trap CTRL+C and CTRL+Z
+        trap "kill -9 $PPID" EXIT               # Trap CTRL+D and other exit evocations
+}
+
+variablesSSH() {
+        SSH_IP="$(echo $SSH_CONNECTION | awk '{print $3}')"     # Retrieve IP used to access the CM (172.16.2.x)
+
+        if [[ "${SSH_IP}" == "${POD1IP}" ]]; then
+                POD="${POD1}"
+        elif [[ "${SSH_IP}" == "${POD2IP}" ]]; then
+                POD="${POD2}"
+        elif [[ "${SSH_IP}" == "${POD3IP}" ]]; then
+                POD="${POD3}"
+        elif [[ "${SSH_IP}" == "${POD4IP}" ]]; then
+                POD="${POD4}"
+        else
+                echo "ERROR: You are not a valid member for this pod."
+                exit 1
+        fi
+}
+
+getPortNumbers() {
+        if [[ ${POD} == ${POD1} ]]; then
+                PORT1="pmshell -l port01"
+                PORT2="pmshell -l port02"
+                PORT3="pmshell -l port03"
+                PORT4="pmshell -l port04"
+                PORT5="pmshell -l port05"
+                PORT6="pmshell -l port06"
+        elif [[ ${POD} == ${POD2} ]]; then
+                PORT1="pmshell -l port07"
+                PORT2="pmshell -l port08"
+                PORT3="pmshell -l port09"
+                PORT4="pmshell -l port10"
+                PORT5="pmshell -l port11"
+                PORT6="pmshell -l port12"
+        elif [[ ${POD} == ${POD3} ]]; then
+                PORT1="pmshell -l port13"
+                PORT2="pmshell -l port14"
+                PORT3="pmshell -l port15"
+                PORT4="pmshell -l port16"
+                PORT5="pmshell -l port17"
+                PORT6="pmshell -l port18"
+        elif [[ ${POD} == ${POD4} ]]; then
+                PORT1="pmshell -l port19"
+                PORT2="pmshell -l port20"
+                PORT3="pmshell -l port21"
+                PORT4="pmshell -l port22"
+                PORT5="pmshell -l port23"
+                PORT6="pmshell -l port24"
+        fi
+}
+
+graphics() {
+        CHOICE=$1
+
+        if [[ ${CHOICE} == "loginshell_menu" ]]; then
+                if [[ $(echo ${#POD}) == "2" ]]; then
+                        POD_GRAPHIC="${POD}"
+                elif [[ $(echo ${#POD}) == "1" ]]; then
+                        POD_GRAPHIC="${POD} "
+                fi
+
+                loginshell_menu="
+  [User $(whoami)]
+  [######################################################]
+  |\e[48;5;17m                                                      \e[0m|
+  |\e[38;5;19;48;5;17m    ooooo     ooo   .oooooo.   ooooo ooooooooooooo    \e[0m|
+  |\e[38;5;20;48;5;17m    '888'     '8'  d8P'  'Y8b  '888' 8'   888   '8    \e[0m|
+  |\e[38;5;21;48;5;17m     888       8  888      888  888       888         \e[0m|
+  |\e[38;5;27;48;5;17m     888       8  888      888  888       888         \e[0m|
+  |\e[38;5;33;48;5;17m     888       8  888      888  888       888         \e[0m|
+  |\e[38;5;39;48;5;17m     '88.    .8'  '88b    d88'  888       888         \e[0m|
+  |\e[38;5;45;48;5;17m       'YbodP'      '8bood8'   o888o     o888o        \e[0m|
+  |\e[38;5;159;48;5;17m             Challenge. Innovate. Connect.            \e[0m|
+  |\e[48;5;17m                                                      \e[0m|
+  +--------------\e[1;38;5;27;48;5;45m ACCESS SERVER - RACK ${RACK} \e[0m----------------+
+  |                        Pod ${POD_GRAPHIC}                        |
+  |                                                      |
+  |   Welcome to the \e[1;38;5;33mUOIT Networking Lab\e[0m access server.  |
+  |                                                      |
+  |               \e[1;38;5;202m|\e[37;1m| \e[38;5;202m|| \e[38;5;40m|\e[37;1m| \e[38;5;27m|| |\e[37;1m| \e[38;5;40m|| \e[38;5;130m|\e[37;1m| \e[38;5;130m||\e[0m                |
+  |               \e[1;38;5;202m|\e[37;1m| \e[38;5;202m|| \e[38;5;40m|\e[37;1m| \e[38;5;27m|| |\e[37;1m| \e[38;5;40m|| \e[38;5;130m|\e[37;1m| \e[38;5;130m||\e[0m                |
+  |               \e[1;38;5;202m|\e[37;1m| \e[38;5;202m|| \e[38;5;40m|\e[37;1m| \e[38;5;27m|| |\e[37;1m| \e[38;5;40m|| \e[38;5;130m|\e[37;1m| \e[38;5;130m||\e[0m                |
+  |               \e[1;38;5;202m|\e[37;1m| \e[38;5;202m|| \e[38;5;40m|\e[37;1m| \e[38;5;27m|| |\e[37;1m| \e[38;5;40m|| \e[38;5;130m|\e[37;1m| \e[38;5;130m||\e[0m                |
+  |                                                      |
+  |   For support, visit \e[38;5;45mlabsupport.networkinglab.ca\e[0m.    |
+  |                                                      |
+  [######################################################]
+
+  [MAIN MENU]--------------------------------------------+
+  [1] R1
+  [2] R2
+  [3] R3
+  [4] SW1
+  [5] SW2
+  [6] SW3
+
+  [V] VM menu                                    [X] Exit
+  +------------------------------------------------------+"
+                echo -e "${loginshell_menu}"
+
+        elif [[ ${CHOICE} == "topology" ]]; then
+                topology='
+  [Topology Map] -------------------------------------------------+
+
+                 ______
+                [__R2__]                # = Serial connections
+               #        #               | = Ethernet connections
+              #          #
+          ___#__        __#___
+         [__R1__]######[__R3__]
+            |              |
+            |              |
+         ___|___        ___|___
+        |__SW1__|======|__SW3__|
+         |   \\\\         //   |
+        PC1   \\\\       //   PC3
+               \\\\_____//
+               |__SW2__|
+                   |
+                  PC2
+
+  [CONNECTIONS] --------------------------------------------------+
+  Router 1 (R1):
+    R1 Serial0/0/0 DCE  --> R2 Serial0/0/0 DTE
+    R1 Serial0/0/1 DTE  --> R3 Serial0/0/0 DCE
+    R1 FastEthernet0/1  --> SW1 FastEthernet0/5
+
+  Router 2 (R2):
+    R2 Serial0/0/0 DTE  --> R1 Serial0/0/0 DCE
+    R2 Serial0/0/1 DCE  --> R3 Serial0/0/1 DTE
+
+  Router 3 (R3):
+    R3 Serial0/0/1 DTE  --> R2 Serial0/0/1 DCE
+    R3 Serial0/0/0 DCE  --> R1 Serial0/0/1 DTE
+    R3 FastEthernet0/1  --> SW3 FastEthernet0/5
+
+  Switch 1 (SW1):
+    SW1 FastEthernet0/1 --> SW2 FastEthernet0/1
+    SW1 FastEthernet0/2 --> SW2 FastEthernet0/2
+    SW1 FastEthernet0/3 --> SW3 FastEthernet0/3
+    SW1 FastEthernet0/4 --> SW3 FastEthernet0/4
+    SW1 FastEthernet0/5 --> R1 FastEthernet0/1
+    SW1 FastEthernet0/6 --> VM PC1
+ '
+
+                echo -e "${topology}"
+        fi
+}
