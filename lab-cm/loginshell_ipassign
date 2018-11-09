@@ -1,0 +1,45 @@
+# IP ASSIGNER
+# This script is needed to get our RADIUS server to set group names depending
+# on the IP address the CM is attempting to be logged in to through. Users are
+# required to log in to their pods with a specific IP address.
+#
+# Please configure this script as follows:
+#       - 172.16.0.x, where "x" corresponds to the pod number
+#       - 172.16.0.251 is the RADIUS server
+#       - 172.16.0.1xx is the CM's own NET1 IP address
+#
+# NOTE: "exit 0" is *required* by pam_exec to know how to "leave" the script.
+
+. /etc/config/customscripts/variables
+rackCheck
+
+if [[ $(ip route | grep "172.16.0.251 via 172.16.0.19") ]]; then
+        echo "Found leftover IP route, removing"
+        ip route del 172.16.0.251 via ${RACKIP}
+fi
+
+echo Entering POD1
+### POD1 ####
+if [[ $(netstat -natpe | grep sshd | awk '{if ($4 == "'${POD1IP}:22'") print $9}' | cut -d / -f1 | grep $PPID) ]]; then
+        # Non-keyboard interactive authentication, where PPID = sshd [priv]'s PID
+        echo Non-keyboard interactive auth
+        ip route add 172.16.0.251/32 via ${RACKIP} src ${POD1IP}
+        exit 0
+elif [[ $(ps | grep ${PAM_USER} | grep pam | grep $PPID) ]]; then
+        # Keyboard interactive authentication, where PPID = sshd [pam]'s PID
+        echo Keyboard interactive auth
+        ip route add 172.16.0.251/32 via ${RACKIP} src ${POD1IP}
+        exit 0
+fi
+
+echo Entering POD2
+### POD2 ####
+if [[ $(netstat -natpe | grep sshd | awk '{if ($4 == "'${POD2IP}:22'") print $9}' | cut -d / -f1 | grep $PPID) ]]; then
+        echo Non-keyboard interactive auth
+        ip route add 172.16.0.251/32 via ${RACKIP} src ${POD2IP}
+elif [[ $(ps | grep ${PAM_USER} | grep pam | grep $PPID) ]]; then
+        echo Keyboard interactive auth
+        ip route add 172.16.0.251/32 via ${RACKIP} src ${POD2IP}
+fi
+
+exit 0
