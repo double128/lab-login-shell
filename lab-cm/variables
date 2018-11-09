@@ -1,0 +1,259 @@
+  #######################################################
+  #    Source file for variables needed by scripts      #
+  #######################################################
+
+## Welcome to my lovely variable definition script. You will need
+## To change the contents of this file depending on the rack CM that
+## this script is being run on.
+
+rackCheck() {
+        ifconf=$(ifconfig | grep eth0 -A1)
+        RACK1_IP="172.16.0.191"
+        RACK2_IP="172.16.0.192"
+        RACK3_IP="172.16.0.193"
+        RACK4_IP="172.16.0.194"
+        RACK5_IP="172.16.0.195"
+        RACK6_IP="172.16.0.196"
+        RACK7_IP="172.16.0.197"
+        RACK8_IP="172.16.0.198"
+
+        if [[ $(echo ${ifconf} | grep ${RACK1_IP}) ]]; then
+                ## POD VARIABLES ##########################
+                export POD1="1"
+                export POD1IP="172.16.0.1"
+                export POD2="2"
+                export POD2IP="172.16.0.2"
+
+                ## RACK VARIABLES #########################
+                export RACKIP="${RACK1_IP}"
+                export RACK="1"
+
+        elif [[ $(echo ${ifconf} | grep ${RACK2_IP}) ]]; then
+                ## POD VARIABLES ############################
+                export POD1="3"
+                export POD1IP="172.16.0.3"
+                export POD2="4"
+                export POD2IP="172.16.0.4"
+
+                ## RACK VARIABLES ###########################
+                RACKIP="${RACK2_IP}"
+                RACK="2"
+
+        elif [[ $(echo ${ifconf} | grep ${RACK3_IP}) ]]; then
+                ## POD VARIABLES ############################
+                export POD1="5"
+                export POD1IP="172.16.0.5"
+                export POD2="6"
+                export POD2IP="172.16.0.6"
+
+                ## RACK VARIABLES ###########################
+                RACKIP="${RACK3_IP}"
+                RACK="3"
+
+        elif [[ $(echo ${ifconf} | grep ${RACK4_IP}) ]]; then
+                ## POD VARIABLES ############################
+                export POD1="7"
+                export POD1IP="172.16.0.7"
+                export POD2="8"
+                export POD2IP="172.16.0.8"
+
+                ## RACK VARIABLES ###########################
+                RACKIP="${RACK4_IP}"
+                RACK="4"
+
+        elif [[ $(echo ${ifconf} | grep ${RACK5_IP}) ]]; then
+                ## POD VARIABLES ############################
+                export POD1="9"
+                export POD1IP="172.16.0.9"
+                export POD2="10"
+                export POD2IP="172.16.0.10"
+
+                ## RACK VARIABLES ###########################
+                RACKIP="${RACK5_IP}"
+                RACK="5"
+
+        elif [[ $(echo ${ifconf} | grep ${RACK6_IP}) ]]; then
+                ## POD VARIABLES ############################
+                export POD1="11"
+                export POD1IP="172.16.0.11"
+                export POD2="12"
+                export POD2IP="172.16.0.12"
+
+                ## RACK VARIABLES ###########################
+                RACKIP="${RACK6_IP}"
+                RACK="6"
+
+        elif [[ $(echo ${ifconf} | grep ${RACK7_IP}) ]]; then
+                ## POD VARIABLES ############################
+                export POD1="13"
+                export POD1IP="172.16.0.13"
+                export POD2="14"
+                export POD2IP="172.16.0.14"
+
+                ## RACK VARIABLES ###########################
+                RACKIP="${RACK7_IP}"
+                RACK="7"
+
+        elif [[ $(echo ${ifconf} | grep ${RACK8_IP}) ]]; then
+                ## POD VARIABLES ############################
+                export POD1="15"
+                export POD1IP="172.16.0.15"
+                export POD2="16"
+                export POD2IP="172.16.0.16"
+
+                ## RACK VARIABLES ###########################
+                RACKIP="${RACK8_IP}"
+                RACK="8"
+        fi
+}
+
+traps() {
+        trap "" SIGINT SIGQUIT SIGTSTP          # Trap CTRL+C and CTRL+Z
+        trap "kill -9 $PPID" EXIT       # Trap CTRL+D and other exit evocations
+}
+
+variablesSSH() {
+        SSH_IP="$(echo $SSH_CONNECTION | awk '{print $3}')"     # Retrieve IP used to SSH into the CM
+
+        if [[ "${SSH_IP}" == "${POD1IP}" ]]; then
+                POD="${POD1}"
+        elif [[ "${SSH_IP}" == "${POD2IP}" ]]; then
+                POD="${POD2}"
+        else
+                echo "ERROR: You are not a valid member for this pod."
+                exit 1
+        fi
+}
+
+getPortNumbers() {
+        if [[ ${POD} == ${POD1} ]]; then
+                PORT1="pmshell -l port01"
+                PORT2="pmshell -l port02"
+                PORT3="pmshell -l port03"
+                PORT4="pmshell -l port04"
+                PORT5="pmshell -l port05"
+                PORT6="pmshell -l port06"
+                PORT7="pmshell -l port07"
+                PORT8="pmshell -l port08"
+
+                PORT1_POWER="port32_0"
+                PORT2_POWER="port32_1"
+                PORT3_POWER="port32_2"
+                PORT4_POWER="port32_3"
+                PORT5_POWER="port32_4"
+                PORT6_POWER="port32_5"
+                PORT7_POWER="port32_6"
+                PORT8_POWER="port32_7"
+
+        elif [[ ${POD} == ${POD2} ]]; then
+                PORT1="pmshell -l port09"
+                PORT2="pmshell -l port10"
+                PORT3="pmshell -l port11"
+                PORT4="pmshell -l port12"
+                PORT5="pmshell -l port13"
+                PORT6="pmshell -l port14"
+                PORT7="pmshell -l port15"
+                PORT8="pmshell -l port16"
+
+                PORT1_POWER="port32_8"
+                PORT2_POWER="port32_9"
+                PORT3_POWER="port32_10"
+                PORT4_POWER="port32_11"
+                PORT5_POWER="port32_12"
+                PORT6_POWER="port32_13"
+                PORT7_POWER="port32_14"
+                PORT8_POWER="port32_15"
+        fi
+
+        PORT1_NAME="R1"
+        PORT2_NAME="R2"
+        PORT3_NAME="R3"
+        PORT4_NAME="R4"
+        PORT5_NAME="SW1"
+        PORT6_NAME="SW2"
+        PORT7_NAME="SW3"
+        PORT8_NAME="SW4"
+}
+
+graphics() {
+        CHOICE=$1
+        if [[ ${CHOICE} == "loginshell_menu" ]]; then
+                if [[ $(echo ${#POD}) == "2" ]]; then
+                        POD_GRAPHIC="${POD}"
+                elif [[ $(echo ${#POD}) == "1" ]]; then
+                        POD_GRAPHIC="${POD} "
+                fi
+
+                loginshell_menu="
+  [User $(whoami)]
+  [######################################################]
+  |\e[48;5;17m                                                      \e[0m|
+  |\e[38;5;19;48;5;17m    ooooo     ooo   .oooooo.   ooooo ooooooooooooo    \e[0m|
+  |\e[38;5;20;48;5;17m    '888'     '8'  d8P'  'Y8b  '888' 8'   888   '8    \e[0m|
+  |\e[38;5;21;48;5;17m     888       8  888      888  888       888         \e[0m|
+  |\e[38;5;27;48;5;17m     888       8  888      888  888       888         \e[0m|
+  |\e[38;5;33;48;5;17m     888       8  888      888  888       888         \e[0m|
+  |\e[38;5;39;48;5;17m     '88.    .8'  '88b    d88'  888       888         \e[0m|
+  |\e[38;5;45;48;5;17m       'YbodP'      '8bood8'   o888o     o888o        \e[0m|
+  |\e[38;5;159;48;5;17m             Challenge. Innovate. Connect.            \e[0m|
+  |\e[48;5;17m                                                      \e[0m|
+  +--------------\e[1;38;5;27;48;5;45m ACCESS SERVER - RACK ${RACK} \e[0m----------------+
+  |                        Pod ${POD_GRAPHIC}                        |
+  |                                                      |
+  |   Welcome to the \e[1;38;5;33mUOIT Networking Lab\e[0m access server.  |
+  |                                                      |
+  |               \e[1;38;5;202m|\e[37;1m| \e[38;5;202m|| \e[38;5;40m|\e[37;1m| \e[38;5;27m|| |\e[37;1m| \e[38;5;40m|| \e[38;5;130m|\e[37;1m| \e[38;5;130m||\e[0m
+  |               \e[1;38;5;202m|\e[37;1m| \e[38;5;202m|| \e[38;5;40m|\e[37;1m| \e[38;5;27m|| |\e[37;1m| \e[38;5;40m|| \e[38;5;130m|\e[37;1m| \e[38;5;130m||\e[0m
+  |               \e[1;38;5;202m|\e[37;1m| \e[38;5;202m|| \e[38;5;40m|\e[37;1m| \e[38;5;27m|| |\e[37;1m| \e[38;5;40m|| \e[38;5;130m|\e[37;1m| \e[38;5;130m||\e[0m
+  |               \e[1;38;5;202m|\e[37;1m| \e[38;5;202m|| \e[38;5;40m|\e[37;1m| \e[38;5;27m|| |\e[37;1m| \e[38;5;40m|| \e[38;5;130m|\e[37;1m| \e[38;5;130m||\e[0m
+  |                                                      |
+  |   For support, visit \e[38;5;45mlabsupport.networkinglab.ca\e[0m.    |
+  |                                                      |
+  [######################################################]
+
+  [MAIN MENU]--------------------------------------------+
+  [1] R1
+  [2] R2
+  [3] R3
+  [4] R4
+  [5] SW1
+  [6] SW2
+  [7] SW3
+  [8] SW4
+  
+  [P] Power menu                                  [X] Exit
+  +------------------------------------------------------+"
+                echo -e "${loginshell_menu}"
+
+        elif [[ ${CHOICE} == "power_menu" ]]; then
+                if [[ $(echo ${#POD}) == "2" ]]; then
+                        TITLE_BAR="[Pod ${POD} Power States] --------------------+"
+                elif [[ $(echo ${#POD}) == "1" ]]; then
+                        TITLE_BAR="[Pod ${POD} Power States] ---------------------+"
+                fi
+
+                power_menu="
+  ${TITLE_BAR}
+  R1 Status:    ${port1_output}
+  R2 Status:    ${port2_output}
+  R3 Status:    ${port3_output}
+  R4 Status:    ${port4_output}
+  SW1 Status:   ${port5_output}
+  SW2 Status:   ${port6_output}
+  SW3 Status:   ${port7_output}
+  SW4 Status:   ${port8_output}
+
+  [POWER MENU] -----------------------------+
+  [1] Change power state of device
+  [2] Turn on all devices
+  [3] Turn off all devices
+  [X] Return to main menu"
+
+        echo -e "${power_menu}"
+        fi
+}
+
+colours() {
+        OFF="\e[31mOFF\e[0m"
+        ON="\e[32mON\e[0m"
+}
